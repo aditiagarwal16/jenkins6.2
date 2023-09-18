@@ -4,82 +4,78 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "Fetch the source code from ${env.DIRECTORY_PATH}"
-                echo "Compile the code and generate any necessary artifacts"
-                echo "Use Maven for automation"
-            }
-        }
-
-        stage('Unit and Integration Tests') {
-            steps {
-                echo "Unit tests"
-                echo "Integration tests"
-                echo "JUnit (Unit Tests) and Postman (Integration Tests)"
-            }
-            post {
-                success {
-                        emailext body: "Unit and Integration Tests have passed successfully. Attached are the test logs.", 
-                        to: 'aditiagarwall1603@gmail.com',
-                        subject: "Unit and Integration Tests Successful",
-                        attachmentsPattern: 'test.log', 
-                        attachLog: true 
-                    }
-                failure {
-                        emailext body: "Unit and Integration Tests have failed. Attached are the test logs.", 
-                        to: 'aditiagarwall1603@gmail.com', 
-                        subject: "Unit and Integration Tests Failed",
-                        attachmentsPattern: 'test.log', 
-                        attachLog: true 
-                    }
+                    echo "Fetch the source code from ${env.DIRECTORY_PATH}"
+                    echo "Compile the code and generate any necessary artifacts"
+                    echo "use Maven for automation"
                 }
             }
 
+        stage('Unit and Integration Tests') {
+            steps {
+                    echo "Unit tests"
+                    echo "Integration tests"
+            }
+            post {
+                always {
+                    // Send email notification with test results
+                    emailext(
+                        subject: "Unit and Integration Tests ${currentBuild.result}",
+                        body: "Unit and Integration Tests ${currentBuild.result}",
+                        to: 'islandeye123@gmail.com', // Add the recipient's email address
+                        replyTo: 'yuhanhb@gmail.com', // Your email address
+                        attachmentsPattern: '**/target/surefire-reports/*.txt',
+                        mimeType: 'text/plain',
+                    )
+                }
+            }
+        }
+
         stage('Code Analysis') {
             steps {
-                echo "Integration tests"
-                echo "SonarQube Scanner for Jenkins plugin"
+                   echo "Integration tests"
+                   echo "SonarQube Scanner for Jenkins plugin"
             }
         }
 
         stage('Security Scan') {
             steps {
-                echo "Perform scan to find vulnerabilities"
-                echo "OWASP Dependency-Check plugin"
+                    echo "Perform scan to find vulnerabilities"
+                    echo "OWASP Dependency-Check plugin"
             }
             post {
-                success {
-                        emailext body: "Security Scan has completed successfully.Attached are the test logs", 
-                        to: 'aditiagarwall1603@gmail.com', 
-                        subject: "Security Scan Successful",
-                        attachmentsPattern: 'test.log', 
-                        attachLog: true 
-                    }
-                failure {
-                        emailext body: "Security Scan has failed.", 
-                        to: 'aditiagarwall1603@gmail.com', 
-                        subject: "Security Scan Failed",
-                        attachmentsPattern: 'test.log', 
-                        attachLog: true 
+                always {
+                      // Send email notification with security scan results
+                    emailext(
+                        subject: "Security Scan ${currentBuild.result}",
+                        body: "Security Scan ${currentBuild.result}",
+                        to: 'islandeye123@gmail.com', // Add the recipient's email address
+                        replyTo: 'yuhanhb@gmail.com', // Your email address
+                        attachmentsPattern: '**/security-scan-report.txt',
+                        mimeType: 'text/plain',
+                    )
                 }
             }
         }
 
-
         stage('Deploy to Staging') {
             steps {
-                echo "Deploy application staging server"
-                echo "Use tool such as AWS"
+                    echo "Deploy application staging server"
+                    echo "Use tool such as AWS"
             }
         }
 
         stage('Integration Tests on Staging') {
             steps {
-                echo "run integration test"
-                echo "Use tool such as JUnit"
+                    echo "run integration test"
+                    echo "Use tool such as JUnit"
             }
         }
 
-
+        stage('Deploy to Production') {
+            steps {
+                    echo "deploy application"
+                    echo "use AWS"
+            }
         }
     }
 }
