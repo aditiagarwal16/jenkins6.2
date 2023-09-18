@@ -1,4 +1,4 @@
-pipeline { //new edit
+pipeline { new edit
     agent any
 
     stages {
